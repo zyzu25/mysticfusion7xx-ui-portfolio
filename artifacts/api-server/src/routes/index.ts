@@ -7,6 +7,7 @@ import reviewsRouter from "./reviews";
 import promoRouter from "./promo";
 import viewsRouter from "./views";
 import contactRouter from "./contact";
+import uiSuggestionsRouter from "./uiSuggestions";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(reviewsRouter);
 router.use(promoRouter);
 router.use(viewsRouter);
 router.use(contactRouter);
+router.use(uiSuggestionsRouter);
 
 export default router;
