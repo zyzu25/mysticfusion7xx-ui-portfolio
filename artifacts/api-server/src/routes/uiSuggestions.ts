@@ -47,6 +47,8 @@ const suggestions = loadSuggestions();
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 8;
 const RATE_WINDOW = 60_000;
+const suggestionCooldowns = new Map<string, number>();
+const SUGGESTION_COOLDOWN = 10 * 60_000;
 
 function getIP(req: Request) {
   return (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim()
@@ -70,6 +72,9 @@ setInterval(() => {
   const now = Date.now();
   for (const [key, value] of rateLimits) {
     if (now > value.resetAt) rateLimits.delete(key);
+  }
+  for (const [key, submittedAt] of suggestionCooldowns) {
+    if (now - submittedAt >= SUGGESTION_COOLDOWN) suggestionCooldowns.delete(key);
   }
 }, 300_000);
 
@@ -120,7 +125,9 @@ async function notifyOwner(entry: UISuggestion): Promise<boolean> {
 }
 
 router.post("/ui-suggestions", async (req: Request, res: Response) => {
-  if (!rateOk(getIP(req))) {
+  const ip = getIP(req);
+
+  if (!rateOk(ip)) {
     res.status(429).json({ error: "Too many suggestions. Please wait a minute and try again." });
     return;
   }
@@ -137,6 +144,19 @@ router.post("/ui-suggestions", async (req: Request, res: Response) => {
     return;
   }
 
+  const lastSubmittedAt = suggestionCooldowns.get(ip);
+  if (lastSubmittedAt !== undefined) {
+    const remainingMs = SUGGESTION_COOLDOWN - (Date.now() - lastSubmittedAt);
+    if (remainingMs > 0) {
+      res.status(429).json({
+        error: "You can submit one UI idea every 10 minutes. Please try again later.",
+        retryAfter: Math.ceil(remainingMs / 1000),
+      });
+      return;
+    }
+    suggestionCooldowns.delete(ip);
+  }
+
   const entry: UISuggestion = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     suggestion,
@@ -150,6 +170,7 @@ router.post("/ui-suggestions", async (req: Request, res: Response) => {
     return;
   }
 
+  suggestionCooldowns.set(ip, Date.now());
   const notified = await notifyOwner(entry);
   res.status(201).json({ ok: true, notified });
 });
