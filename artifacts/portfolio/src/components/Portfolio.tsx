@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TiltCard } from "./TiltCard";
 import { AnimatedText } from "./AnimatedText";
+import { UISuggestionBox } from "./UISuggestionBox";
 import { X, ZoomIn } from "lucide-react";
 
 const SCREENSHOTS: Record<string, string[]> = {
@@ -282,6 +283,7 @@ export function Portfolio() {
                     );
                   })}
                 </div>
+                {project.game === "VARIOUS ROLEPLAY UIs" && <UISuggestionBox />}
               </div>
             </TiltCard>
           ))}
