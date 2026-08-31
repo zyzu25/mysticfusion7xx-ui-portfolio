@@ -10,6 +10,11 @@ const SCREENSHOTS: Record<string, string[]> = {
     "/images/roleplay/incident-report.png",
     "/images/roleplay/surveillance-report.png",
     "/images/roleplay/notifications.png",
+    "/images/roleplay/cia-secure-access-portal.png", // CIA Secure Access Portal
+    "/images/roleplay/cia-access-verification.png", // CIA Access Verification
+    "/images/ui/Group_1_(1)_1782698895070.png", // CIA Main Menu
+    "/images/ui/CIA_CASE_DASHBOARD_1782698943338.png", // CIA Case Dashboard
+    "/images/ui/Screenshot_2_1782698943343.png", // CIA Loading Screen
   ],
   "Fort Benning": [
     "/images/ui/image_1782699714758.png", // Loading Screen
@@ -18,11 +23,6 @@ const SCREENSHOTS: Record<string, string[]> = {
     "/images/ui/image_1782699794486.png", // Events UI
     "/images/ui/image_1782699805450.png", // Emote Wheel
     "/images/ui/image_1782699769173.png", // ID Card UI
-  ],
-  "Central Intelligence Agency": [
-    "/images/ui/Group_1_(1)_1782698895070.png", // Main Menu
-    "/images/ui/CIA_CASE_DASHBOARD_1782698943338.png", // Case Dashboard
-    "/images/ui/Screenshot_2_1782698943343.png", // Loading Screen
   ],
   "SCP Site Aether": [
     "/images/ui/Group_2_(1)_1782698943340.png", // Loading Screen
@@ -53,7 +53,7 @@ const projects = [
   {
     game: "VARIOUS ROLEPLAY UIs",
     category: "Roleplay",
-    screens: ["Citation", "Incident Report", "Surveillance Report", "Notifications"],
+    screens: ["Citation", "Incident Report", "Surveillance Report", "Notifications", "CIA Secure Access Portal", "CIA Access Verification", "CIA Main Menu", "CIA Case Dashboard", "CIA Loading Screen"],
     desc: "",
     tag: "",
   },
@@ -63,13 +63,6 @@ const projects = [
     screens: ["Loading Screen", "Main Menu", "BCT Hosting UI", "Events UI", "Emote Wheel", "ID Card UI"],
     desc: "Full UI suite for a military roleplay experience. Loading screen, main menu, BCT hosting, events system, emote selection wheel, and identification card.",
     tag: "6 Screens",
-  },
-  {
-    game: "Central Intelligence Agency",
-    category: "Military RP",
-    screens: ["Main Menu", "Case Dashboard", "Loading Screen"],
-    desc: "Professional UI for a CIA-themed roleplay game. A main menu, case dashboard, and loading screen with a sleek intelligence-agency aesthetic.",
-    tag: "3 Screens",
   },
   {
     game: "SCP Site Aether",
