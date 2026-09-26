@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 export type Theme = "purple" | "black" | "red";
 const ROTATING_THEMES: Theme[] = ["purple", "black", "red"];
+const PURPLE_HOLD_MS = 4 * 60_000;
 const THEME_ROTATION_MS = 60_000;
 
 interface ThemeCtxValue {
@@ -14,16 +15,8 @@ const ThemeCtx = createContext<ThemeCtxValue>({
   setTheme: () => {},
 });
 
-function readTheme(): Theme {
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("portfolio-theme");
-    if (stored === "purple" || stored === "red" || stored === "black") return stored;
-  }
-  return "purple";
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(readTheme);
+  const [theme, setThemeState] = useState<Theme>("purple");
 
   const setTheme = (next: Theme) => {
     setThemeState(next);
@@ -36,7 +29,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    setThemeState("purple");
+    localStorage.setItem("portfolio-theme", "purple");
+    document.documentElement.setAttribute("data-theme", "purple");
+
+    const advanceTheme = () => {
       setThemeState(current => {
         const currentIndex = ROTATING_THEMES.indexOf(current);
         const next = ROTATING_THEMES[(currentIndex + 1) % ROTATING_THEMES.length];
@@ -44,8 +41,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         document.documentElement.setAttribute("data-theme", next);
         return next;
       });
-    }, THEME_ROTATION_MS);
-    return () => window.clearInterval(timer);
+    };
+
+    let rotationTimer: number | undefined;
+    const holdTimer = window.setTimeout(() => {
+      advanceTheme();
+      rotationTimer = window.setInterval(advanceTheme, THEME_ROTATION_MS);
+    }, PURPLE_HOLD_MS);
+    return () => {
+      window.clearTimeout(holdTimer);
+      if (rotationTimer !== undefined) window.clearInterval(rotationTimer);
+    };
   }, []);
 
   return (
