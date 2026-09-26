@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TiltCard } from "./TiltCard";
 import { AnimatedText } from "./AnimatedText";
 import { UISuggestionBox } from "./UISuggestionBox";
-import { X, ZoomIn } from "lucide-react";
+import { ArrowLeft, ArrowRight, X, ZoomIn } from "lucide-react";
 
 const SCREENSHOTS: Record<string, string[]> = {
   "VARIOUS ROLEPLAY UIs": [
@@ -86,7 +86,35 @@ const projects = [
   },
 ];
 
-function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+type GalleryItem = { src: string; alt: string };
+
+function Lightbox({
+  items,
+  index,
+  onNavigate,
+  onClose,
+}: {
+  items: GalleryItem[];
+  index: number;
+  onNavigate: (index: number) => void;
+  onClose: () => void;
+}) {
+  const item = items[index];
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onNavigate((index - 1 + items.length) % items.length);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onNavigate((index + 1) % items.length);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [index, items.length, onNavigate]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -97,6 +125,40 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
       style={{ background: 'rgba(2,2,12,0.92)', backdropFilter: 'blur(12px)' }}
       onClick={onClose}
     >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate((index - 1 + items.length) % items.length);
+        }}
+        aria-label="Previous image"
+        title="Previous image"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-full p-3 text-white/85 transition-colors hover:text-white"
+        style={{
+          background: "rgba(2,2,12,0.76)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <ArrowLeft size={24} />
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate((index + 1) % items.length);
+        }}
+        aria-label="Next image"
+        title="Next image"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-full p-3 text-white/85 transition-colors hover:text-white"
+        style={{
+          background: "rgba(2,2,12,0.76)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <ArrowRight size={24} />
+      </button>
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -106,8 +168,8 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
         onClick={(e) => e.stopPropagation()}
       >
         <img
-          src={src}
-          alt={alt}
+          src={item.src}
+          alt={item.alt}
           className="max-w-full max-h-[85vh] rounded-xl object-contain select-none"
           style={{ pointerEvents: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
@@ -183,14 +245,18 @@ function ScreenSlot({
 }
 
 export function Portfolio() {
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ items: GalleryItem[]; index: number } | null>(null);
 
-  const openLightbox = useCallback((src: string, alt: string) => {
-    setLightbox({ src, alt });
+  const openLightbox = useCallback((items: GalleryItem[], index: number) => {
+    setLightbox({ items, index });
   }, []);
 
   const closeLightbox = useCallback(() => {
     setLightbox(null);
+  }, []);
+
+  const navigateLightbox = useCallback((index: number) => {
+    setLightbox((current) => current ? { ...current, index } : current);
   }, []);
 
   useEffect(() => {
@@ -286,13 +352,20 @@ export function Portfolio() {
                 >
                   {project.screens.map((screen, i) => {
                     const src = SCREENSHOTS[project.game]?.[i] ?? "";
+                    const gallery = project.screens
+                      .map((galleryScreen, galleryIndex) => ({
+                        src: SCREENSHOTS[project.game]?.[galleryIndex] ?? "",
+                        alt: `${project.game} \u2014 ${galleryScreen}`,
+                      }))
+                      .filter((item) => item.src);
+                    const galleryIndex = gallery.findIndex((item) => item.src === src);
                     return (
                       <ScreenSlot
                         key={i}
                         src={src}
                         alt={screen}
                         index={i}
-                        onClick={src ? () => openLightbox(src, `${project.game} \u2014 ${screen}`) : undefined}
+                        onClick={src ? () => openLightbox(gallery, galleryIndex) : undefined}
                       />
                     );
                   })}
@@ -307,8 +380,9 @@ export function Portfolio() {
       <AnimatePresence>
         {lightbox && (
           <Lightbox
-            src={lightbox.src}
-            alt={lightbox.alt}
+            items={lightbox.items}
+            index={lightbox.index}
+            onNavigate={navigateLightbox}
             onClose={closeLightbox}
           />
         )}
