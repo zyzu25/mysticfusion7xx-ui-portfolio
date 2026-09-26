@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowLeft, Palette, ChevronDown, Droplets, Flame, Waves, Sparkles, ZoomIn, ZoomOut, X } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, Palette, ChevronDown, Droplets, Flame, Waves, Sparkles, ZoomIn, ZoomOut, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { GlobalBackground } from "@/components/GlobalBackground";
@@ -28,6 +28,8 @@ interface LightboxState {
   src: string;
   alt: string;
   zoom: number;
+  index: number;
+  gallery: { src: string; alt: string }[];
 }
 
 function ProtectedImage({
@@ -70,7 +72,15 @@ function ProtectedImage({
   );
 }
 
-function Lightbox({ state, onClose }: { state: LightboxState; onClose: () => void }) {
+function Lightbox({
+  state,
+  onNavigate,
+  onClose,
+}: {
+  state: LightboxState;
+  onNavigate: (index: number) => void;
+  onClose: () => void;
+}) {
   const [zoom, setZoom] = useState(state.zoom);
   const MIN_ZOOM = 0.5;
   const MAX_ZOOM = 3;
@@ -82,12 +92,24 @@ function Lightbox({ state, onClose }: { state: LightboxState; onClose: () => voi
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onNavigate((state.index - 1 + state.gallery.length) % state.gallery.length);
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onNavigate((state.index + 1) % state.gallery.length);
+      }
       if (e.key === "+" || e.key === "=") zoomIn();
       if (e.key === "-") zoomOut();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, onNavigate, state.gallery.length, state.index]);
+
+  useEffect(() => {
+    setZoom(state.zoom);
+  }, [state.src, state.zoom]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -104,6 +126,32 @@ function Lightbox({ state, onClose }: { state: LightboxState; onClose: () => voi
       style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}
       onClick={onClose}
     >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate((state.index - 1 + state.gallery.length) % state.gallery.length);
+        }}
+        aria-label="Previous image"
+        title="Previous image"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-full p-3 text-white/85 transition-colors hover:text-white"
+        style={{ background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.18)" }}
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate((state.index + 1) % state.gallery.length);
+        }}
+        aria-label="Next image"
+        title="Next image"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-full p-3 text-white/85 transition-colors hover:text-white"
+        style={{ background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.18)" }}
+      >
+        <ArrowRight className="w-5 h-5" />
+      </button>
       {/* Controls */}
       <div
         className="absolute top-5 right-5 flex items-center gap-2 z-10"
@@ -464,8 +512,19 @@ export default function Logos() {
   const TIER                        = useTierConfig();
   const [lightbox, setLightbox]     = useState<LightboxState | null>(null);
 
-  const openLightbox = useCallback((src: string, alt: string) => {
-    setLightbox({ src, alt, zoom: 1 });
+  const logoGallery = logos.map((logo) => ({
+    src: `/images/logos/${logo.file}`,
+    alt: logo.name,
+  }));
+
+  const openLightbox = useCallback((index: number) => {
+    const item = logoGallery[index];
+    setLightbox({ ...item, zoom: 1, index, gallery: logoGallery });
+  }, []);
+
+  const navigateLightbox = useCallback((index: number) => {
+    const item = logoGallery[index];
+    setLightbox((current) => current ? { ...current, ...item, index, zoom: 1 } : current);
   }, []);
 
   const goContact = () => {
@@ -486,7 +545,7 @@ export default function Logos() {
       {/* Lightbox */}
       <AnimatePresence>
         {lightbox && (
-          <Lightbox state={lightbox} onClose={() => setLightbox(null)} />
+          <Lightbox state={lightbox} onNavigate={navigateLightbox} onClose={() => setLightbox(null)} />
         )}
       </AnimatePresence>
 
@@ -545,7 +604,7 @@ export default function Logos() {
                     <ProtectedImage
                       src={`/images/logos/${logo.file}`}
                       alt={logo.name}
-                      onClick={() => openLightbox(`/images/logos/${logo.file}`, logo.name)}
+                      onClick={() => openLightbox(i)}
                     />
                     <div>
                       <span
