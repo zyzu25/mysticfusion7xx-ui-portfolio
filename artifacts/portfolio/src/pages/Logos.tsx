@@ -133,6 +133,8 @@ function Lightbox({ state, onClose }: { state: LightboxState; onClose: () => voi
         <motion.button
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={onClose}
+          aria-label="Close image"
+          title="Close image"
           className="w-9 h-9 rounded-full flex items-center justify-center ml-2"
           style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.15)" }}
         >

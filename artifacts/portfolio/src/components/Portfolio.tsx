@@ -7,15 +7,19 @@ import { X, ZoomIn } from "lucide-react";
 
 const SCREENSHOTS: Record<string, string[]> = {
   "VARIOUS ROLEPLAY UIs": [
-    "/images/roleplay/citation.png",
-    "/images/roleplay/incident-report.png",
-    "/images/roleplay/surveillance-report.png",
-    "/images/roleplay/notifications.png",
     "/images/roleplay/cia-secure-access-portal.png", // CIA Secure Access Portal
     "/images/roleplay/cia-access-verification.png", // CIA Access Verification
-    "/images/ui/Group_1_(1)_1782698895070.png", // CIA Main Menu
+    "/images/roleplay/cia-university-dashboard.png", // Directorate Dashboard
+    "/images/roleplay/cia-hosting-panel-phase.png", // University Hosting Panel
+    "/images/roleplay/cia-hosting-panel-tryout.png", // Tryout Hosting Panel
     "/images/ui/CIA_CASE_DASHBOARD_1782698943338.png", // CIA Case Dashboard
+    "/images/roleplay/surveillance-report.png",
+    "/images/roleplay/citation.png",
+    "/images/roleplay/incident-report.png",
+    "/images/ui/Group_1_(1)_1782698895070.png", // CIA Main Menu
+    "/images/roleplay/directorate-loading-screen.png", // Directorate Loading Screen
     "/images/ui/Screenshot_2_1782698943343.png", // CIA Loading Screen
+    "/images/roleplay/notifications.png",
   ],
   "Fort Benning": [
     "/images/ui/image_1782699714758.png", // Loading Screen
@@ -37,6 +41,7 @@ const SCREENSHOTS: Record<string, string[]> = {
     "/images/ui/Slide_16_9_-_2_(2)_1782698895073.png", // Anime UI
     "/images/ui/Group_23_1782698895072.png", // Car Shop UI
     "/images/ui/DailyRewardsUI_1782698895071.png", // Daily Rewards
+    "/images/ui/DailyRewardsUI2.png", // Daily Rewards 2
     "/images/ui/Frame_2_1782698895068.png", // Redeem Codes
     "/images/ui/Frame_1_1782698895069.png", // Leaderboard
     "/images/ui/Group_5_1782698943341.png", // Quests
@@ -54,7 +59,7 @@ const projects = [
   {
     game: "VARIOUS ROLEPLAY UIs",
     category: "Roleplay",
-    screens: ["Citation", "Incident Report", "Surveillance Report", "Notifications", "CIA Secure Access Portal", "CIA Access Verification", "CIA Main Menu", "CIA Case Dashboard", "CIA Loading Screen"],
+    screens: ["CIA Secure Access Portal", "CIA Access Verification", "Directorate Dashboard", "University Hosting Panel", "Tryout Hosting Panel", "CIA Case Dashboard", "Surveillance Report", "Citation", "Incident Report", "CIA Main Menu", "Directorate Loading Screen", "CIA Loading Screen", "Notifications"],
     desc: "",
     tag: "",
   },
@@ -75,9 +80,9 @@ const projects = [
   {
     game: "Various Clients",
     category: "Mixed",
-    screens: ["Anime UI", "Car Shop UI", "Daily Rewards", "Redeem Codes", "Leaderboard", "Quests", "Kill Feed", "Gloves Shop", "Inventory", "Settings", "Team Selection", "Shop Interface", "Request a Feature"],
+    screens: ["Anime UI", "Car Shop UI", "Daily Rewards", "Daily Rewards 2", "Redeem Codes", "Leaderboard", "Quests", "Kill Feed", "Gloves Shop", "Inventory", "Settings", "Team Selection", "Shop Interface", "Request a Feature"],
     desc: "Standalone commissions including anime interfaces, car shop, daily rewards, redeem codes, leaderboards, quests, kill feed, shop UIs, and team selection systems.",
-    tag: "13 Screens",
+    tag: "14 Screens",
   },
 ];
 
@@ -109,10 +114,19 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
           draggable={false}
         />
         <button
+          type="button"
           onClick={onClose}
-          className="absolute -top-10 right-0 text-white/60 hover:text-white transition-colors"
+          aria-label="Close image"
+          title="Close image"
+          className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-white/85 transition-colors hover:text-white"
+          style={{
+            background: "rgba(2,2,12,0.76)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            backdropFilter: "blur(10px)",
+          }}
         >
           <X size={24} />
+          <span>Close</span>
         </button>
       </motion.div>
     </motion.div>

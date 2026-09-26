@@ -28,6 +28,10 @@ const testimonials = [
     quote: "Made my CIA UIs exactly like how I wanted them maybe one UI wasn't the best but the other UI's quality was really really GREAT especially loading screen I think he's too good at making loading screens, I'd probably suggest that you hire him 100%",
     rating: 4,
   },
+  {
+    quote: "I don't really have anything to say, you already reached professional level",
+    rating: 5,
+  },
 ];
 
 function Stars({ count }: { count: number }) {
